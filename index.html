@@ -9,11 +9,19 @@
 <body>
 <div id="main" class="centertext minimalmargin">
 
-    <h1 class="text-muted display-1 minimalmargin">Weather Application</h1>
+    <h1 class="text-muted display-1 minimalmargin" id="title">Weather Application</h1>
 
     <input type="search" placeholder="City" id="city" class="input-group-text mx-auto minimalmargin" />
-    <input type="submit" value="Submit" id="submit" class="input-group-text mx-auto">
-    
+
+    <button class="btn btn-secondary" id="showDropdown">
+        Temperature Units
+    </button>
+
+    <select name="temperatureUnitsList" id="temperatureUnitsList" class="dropdown-header mx-auto">
+
+    </select>
+
+    <input type="submit" value="Submit" id="submit" class="input-group-text mx-auto minimalmargin">
 
 </div>
 
