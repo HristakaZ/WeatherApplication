@@ -4,6 +4,7 @@ const temperatureUnits = {
                             'Fahrenheit': 'imperial',
                             'Celsius': 'metric'
                          };
+const iconURL = "http://openweathermap.org/img/wn/"
 addEventListener('load', onLoad);
 
 //a function executing all of the logic, which is called by the main addEventListener at the top of the scripts.js file
@@ -69,15 +70,9 @@ function setTemperatureUnitsToDropdown() {
 
         let combinedRgbColors = getRandomBackgroundColor();
         option.style.backgroundColor = combinedRgbColors;
-        option.style.color = "#FCBDBD";
+        option.style.color = "orangered";
         temperatureUnitsDropdownList.appendChild(option);
     });
-}
-
-
-function setRandomTitleColorOvertime() {
-    let title = document.querySelector('#title');
-    console.log(title);
 }
 
 function makeWigglySubmitButton() {
@@ -105,14 +100,76 @@ function returnSubmitButtonBackToNormalDesignState() {
 function getWeatherInformation() {
     let city = document.querySelector('#city');
     let temperatureUnits = document.querySelector('#temperatureUnitsList');
-    let weatherInformation = [];
-    console.log(temperatureUnits.value);
+    let cityValidationMessage = document.querySelector('#validationForCity');
     fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city.value}&units=${temperatureUnits.value}&appid=${apiKey}`)
             .then(response => response.json())
             .then(data => {
-                weatherInformation.push(data);
+                cityValidationMessage.innerHTML = "";
+                setWeatherInformation(data);
             })
-            .catch(error => alert(error));
-    
-    console.log(weatherInformation);
+            .catch(error => {
+                let weatherApiInfo = document.querySelector('#weatherapiinfo');
+                if(city.value == null || city.value == '' || city.value == ' ') {
+                    cityValidationMessage.innerHTML = "The city field is required!";
+                    cityValidationMessage.style.color = "orangered";
+                    let alertWarning = document.createElement('div');
+                    alertWarning.setAttribute('class', 'alert alert-warning');
+                    alertWarning.setAttribute('role', 'alert');
+                    alertWarning.innerHTML = "Please check the validation messages!";
+                    weatherApiInfo.appendChild(alertWarning);
+                }
+                else {
+                    cityValidationMessage.innerHTML = "";
+                    let alertError = document.createElement('div');
+                    alertError.setAttribute('class', 'alert alert-danger');
+                    alertError.setAttribute('role', 'alert');
+                    alertError.innerHTML = "Oops, an error occured!";
+                    weatherApiInfo.appendChild(alertError);
+                }
+            });
+}
+
+function setWeatherInformation(data) {
+    let weatherApiInfo = document.querySelector('#weatherapiinfo');
+    weatherApiInfo.innerHTML = '';
+    let temperatureUnitsList = document.querySelector('#temperatureUnitsList');
+    let temperatureUnits = temperatureUnitsList.options[temperatureUnitsList.selectedIndex].text;
+    let locationResponse = data['name'] + ', ' + data['sys']['country'];
+    let weatherInformationResponse = data['weather'];
+    let weatherInfo = {};
+    for (let index = 0; index < weatherInformationResponse.length; index++) {
+        weatherInfo = weatherInformationResponse[index];
+    }
+    let temperatureResponse = 'Min temperature: ' + data['main']['temp_min'] + ' ' + temperatureUnits + 
+    ', ' + 'Max temperature: ' + data['main']['temp_max'] + ' ' + temperatureUnits + ', ' + 'Feels like: ' + data['main']['feels_like'] + 
+    ' ' + temperatureUnits;
+    let iconResponse = weatherInfo['icon'];
+    let humidityResponse = data['main']['humidity'];
+
+    let location = document.createElement('h4');
+    let weatherVision = document.createElement('p');
+    let temperature = document.createElement('p');
+    let icon = document.createElement('img');
+    let humidity = document.createElement('p');
+
+    location.setAttribute('class', 'display-4');
+    location.innerHTML = locationResponse;
+
+    weatherVision.setAttribute('class', 'text-muted');
+    weatherVision.innerHTML = weatherInfo['main'] + ' - ' + weatherInfo['description'];
+
+    temperature.setAttribute('class', 'text-muted');
+    temperature.innerHTML = temperatureResponse;
+
+    humidity.setAttribute('class', 'text-muted');
+    humidity.innerHTML = 'Humidity: ' + humidityResponse + '%';
+
+    icon.setAttribute('src', iconURL + iconResponse + '.png');
+    icon.setAttribute('title', weatherInfo['description']);
+
+    weatherApiInfo.appendChild(location);
+    weatherApiInfo.appendChild(weatherVision);
+    weatherApiInfo.appendChild(temperature);
+    weatherApiInfo.appendChild(humidity);
+    weatherApiInfo.appendChild(icon);
 }
